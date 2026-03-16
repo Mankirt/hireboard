@@ -70,6 +70,18 @@ export async function initDB() {
                 created_at TIMESTAMPTZ DEFAULT NOW(),
                 updated_at TIMESTAMPTZ DEFAULT NOW()
             )`)
+        
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS applications (
+                id SERIAL PRIMARY KEY,
+                job_id INTEGER NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+                seeker_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                cover_letter TEXT,
+                status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'reviewing', 'accepted', 'rejected')),
+                created_at TIMESTAMPTZ DEFAULT NOW(),
+                updated_at TIMESTAMPTZ DEFAULT NOW(),
+                UNIQUE(job_id, seeker_id)
+            );`)
 
         console.log("Database tables ready")
     } catch (err){
