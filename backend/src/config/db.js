@@ -82,6 +82,14 @@ export async function initDB() {
                 updated_at TIMESTAMPTZ DEFAULT NOW(),
                 UNIQUE(job_id, seeker_id)
             );`)
+        
+        await client.query(`
+            CREATE INDEX IF NOT EXISTS idx_jobs_employer ON jobs(employer_id);
+            CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
+            CREATE INDEX IF NOT EXISTS idx_apps_seeker ON applications(seeker_id);
+            CREATE INDEX IF NOT EXISTS idx_apps_job ON applications(job_id);
+            CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user ON refresh_tokens(user_id);
+            `)
 
         console.log("Database tables ready")
     } catch (err){
