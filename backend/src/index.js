@@ -5,6 +5,7 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import { ApiResponse } from './utils/ApiResponse.js'
 import { ApiError } from './utils/ApiError.js'
+import { initDB } from './config/db.js'
 
 dotenv.config()
 
@@ -60,7 +61,7 @@ app.use((err, req, res, next) => {
 
 async function start() {
   try {
-    
+    await initDB()
     app.listen(PORT, () => {
       console.log(`HireBoard API running on http://localhost:${PORT}`)
     })
