@@ -44,6 +44,17 @@ export async function initDB() {
                 expires_at TIMESTAMPTZ NOT NULL,
                 created_at TIMESTAMPTZ DEFAULT NOW()
             );`)
+        
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS employer_profiles (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                company_name VARCHAR(255) NOT NULL,
+                website TEXT,
+                description TEXT,
+                logo_url TEXT,
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            );`)
 
         console.log("Database tables ready")
     } catch (err){
