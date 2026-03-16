@@ -57,6 +57,20 @@ export async function initDB() {
             );`)
         
         await client.query(`
+            CREATE TABLE IF NOT EXISTS subscriptions (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                stripe_customer_id VARCHAR(255) UNIQUE,
+                stripe_subscription_id VARCHAR(255) UNIQUE,
+                plan VARCHAR(50) DEFAULT 'free',
+                status VARCHAR(50) DEFAULT 'active',
+                current_period_end TIMESTAMPTZ,
+                created_at TIMESTAMPTZ DEFAULT NOW(),
+                updated_at TIMESTAMPTZ DEFAULT NOW()
+            );
+            `)
+        
+        await client.query(`
             CREATE TABLE IF NOT EXISTS jobs (
                 id  SERIAL PRIMARY KEY,
                 employer_id INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
