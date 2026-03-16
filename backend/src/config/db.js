@@ -55,6 +55,21 @@ export async function initDB() {
                 logo_url TEXT,
                 created_at TIMESTAMPTZ DEFAULT NOW()
             );`)
+        
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS jobs (
+                id  SERIAL PRIMARY KEY,
+                employer_id INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+                title  VARCHAR(255) NOT NULL,
+                description TEXT NOT NULL,
+                location VARCHAR(255),
+                job_type VARCHAR(50) CHECK (job_type IN ('full-time', 'part-time', 'contract', 'remote')),
+                salary_min INTEGER,
+                salary_max INTEGER,
+                status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'closed', 'draft')),
+                created_at TIMESTAMPTZ DEFAULT NOW(),
+                updated_at TIMESTAMPTZ DEFAULT NOW()
+            )`)
 
         console.log("Database tables ready")
     } catch (err){
