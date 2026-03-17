@@ -33,3 +33,13 @@ export function verifyAccessToken(token) {
         throw new ApiError(401, 'Invalid or expired access token')
     }
 }
+
+export async function storeRefreshToken(userId, refreshToken){
+    const tokenHash = hashToken(refreshToken)
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    await pool.query(
+        `INSERT INTO refresh_tokens (user_id, token_hash, expires_at) VALUES ($1, $2, $3)`,
+        [userId, tokenHash, expiresAt]
+    )
+}
+
