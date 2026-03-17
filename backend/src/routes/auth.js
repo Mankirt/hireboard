@@ -35,3 +35,18 @@ router.post('/register', asyncHandler(async (req, res) => {
     )
 }))
 
+// Login
+router.post('/login', asyncHandler(async (req, res) => {
+    const { email, password } = req.body
+    if (!email || !password){
+        throw new ApiError(400, 'Email and password are required')
+    }
+
+    const { user, accessToken, refreshToken } = await login({email, password})
+    res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS)
+    return res.json(
+        new ApiResponse(200, { user, accessToken }, 'Login successful')
+    )
+}))
+
+
