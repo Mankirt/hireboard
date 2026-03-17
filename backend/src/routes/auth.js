@@ -51,7 +51,7 @@ router.post('/login', asyncHandler(async (req, res) => {
 
 //Logout
 router.post('/logout', asyncHandler(async (req, res) => {
-    const refreshToken = req.cookies>.refreshToken
+    const refreshToken = req.cookies?.refreshToken
     if (refreshToken){
         await deleteRefreshToken(refreshToken)
     }
