@@ -1,0 +1,37 @@
+import express from 'express'
+import { asyncHandler } from '../utils/asyncHandler.js'
+import { ApiResponse } from '../utils/ApiResponse.js'
+import { ApiError } from '../utils/ApiError.js'
+import { register, login, deleteRefreshToken } from '../services/authService.js'
+
+const router = express.Router()
+
+const COOKIE_OPTIONS = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'Strict',
+    maxAge: 7 * 24 * 60 * 60 * 1000
+}
+
+
+// Register
+router.post('/register', asyncHandler(async (req, res) => {
+    const { email, password, fullName, role, companyName } = req.body
+    if (!email || !password || !fullName || !role){
+        throw new ApiError(400, 'Missing required fields')
+    }
+    if (!['seeker', 'employer'].includes(role)){
+        throw new ApiError(400, 'Role must be either seeker or employer')
+    }
+
+    if (password.length < 8){
+        throw new ApiError(400, 'Password must be at least 8 characters long')
+    }
+
+    const { user, accessToken, refreshToken } = await register({email, password, fullName, role, companyName})
+    res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS)
+    return res.status(201).json(
+        new ApiResponse(201, { user, accessToken }, 'Registration successful')
+    )
+}))
+
