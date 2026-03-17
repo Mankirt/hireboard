@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
 import pool from '../config/db.js'
 import { ApiError } from '../utils/ApiError.js'
+import { use } from 'react'
 
 const SALT_ROUNDS = 10
 
@@ -18,8 +19,14 @@ export function generateAccessToken(userId, role){
     return jwt.sign({ userId, role}, process.env.JWT_ACCESS_SECRET, {expiresIn: process.env.JWT_ACCESS_EXPIRY || '15m'})
 }
 
-export function generateRefreshToken(){
-    return crypto.randomBytes(40).toString('hex')
+export function generateRefreshToken(userId){
+    const randomCode = crypto.randomBytes(40).toString('hex')
+    return `${userId}:${randomCode}`
+}
+
+export function extractUserIdFromRefreshToken(refreshToken){
+    const parts = refreshToken.split(':')
+    return parseInt(parts[0], 10)
 }
 
 export function hashToken(token) {
@@ -51,11 +58,21 @@ export async function verifyRefreshToken(refreshToken){
     )
     const record = result.rows[0]
     if (!record){
+        //REUSE DETECTION
+        try {
+            const userId = extractUserIdFromRefreshToken(refreshToken)
+            if (userId && !isNaN(userId)){
+                await deleteAllRefreshTokens(userId)
+                console.warn(`Refresh token reuse detected for user ${userId} — all sessions invalidated`)
+            }
+        } catch (error) {
+            // Token format was garbage, ignore
+        }
         throw new ApiError(401, 'Invalid refresh token')
     }
     if (new Date(record.expires_at) < new Date()){
         await pool.query(`DELETE FROM refresh_tokens WHERE token_hash = $1`, [record.id])
-        throw new ApiError(401, 'Refresh token expired')
+        throw new ApiError(401, 'Refresh token expired - please log in again')
     }
     return record
 }
@@ -101,7 +118,7 @@ export async function register({email, password, fullName, role, companyName}){
     }
 
     const accessToken = generateAccessToken(user.id, role)
-    const refreshToken = generateRefreshToken()
+    const refreshToken = generateRefreshToken(user.id)
 
     await storeRefreshToken(user.id, refreshToken)
 
@@ -119,7 +136,7 @@ export async function login({email, password}){
     }
 
     const accessToken = generateAccessToken(user.id, user.role)
-    const refreshToken = generateRefreshToken()
+    const refreshToken = generateRefreshToken(user.id)
     await storeRefreshToken(user.id, refreshToken)
     const { password_hash, ...safeUser } = user
 
@@ -140,7 +157,7 @@ export async function rotateRefreshToken(incomingToken){
     }
 
     const newAccessToken = generateAccessToken(user.id, user.role)
-    const newRefreshToken = generateRefreshToken()
+    const newRefreshToken = generateRefreshToken(user.id)
     await storeRefreshToken(user.id, newRefreshToken)
     return { user, accessToken: newAccessToken, refreshToken: newRefreshToken }
 }
