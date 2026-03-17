@@ -44,7 +44,7 @@ router.post('/login', asyncHandler(async (req, res) => {
 
     const { user, accessToken, refreshToken } = await login({email, password})
     res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS)
-    return res.json(
+    return res.status(200).json(
         new ApiResponse(200, { user, accessToken }, 'Login successful')
     )
 }))
@@ -56,7 +56,7 @@ router.post('/logout', asyncHandler(async (req, res) => {
         await deleteRefreshToken(refreshToken)
     }
     res.clearCookie('refreshToken', COOKIE_OPTIONS)
-    return res.json(
+    return res.status(200).json(
         new ApiResponse(200, null, 'Logout successful')
     )
 }))
