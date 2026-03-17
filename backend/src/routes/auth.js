@@ -2,7 +2,7 @@ import express from 'express'
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { ApiError } from '../utils/ApiError.js'
-import { register, login, deleteRefreshToken } from '../services/authService.js'
+import { register, login, deleteRefreshToken, rotateRefreshToken } from '../services/authService.js'
 
 const router = express.Router()
 
@@ -12,6 +12,18 @@ const COOKIE_OPTIONS = {
     sameSite: 'Strict',
     maxAge: 7 * 24 * 60 * 60 * 1000
 }
+
+route.post('/refresh', asyncHandler(async (req, res) => {
+    const incomingToken = req.cookies?.refreshToken
+    if (!incomingToken){
+        throw new ApiError(401, 'No refresh token - Please log in again')
+    }
+    const { user, accessToken, refreshToken } = await rotateRefreshToken(incomingToken)
+    res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS)
+    return res.status(200).json(
+        new ApiResponse(200, { user, accessToken }, 'Token refreshed successfully')
+    )
+}))
 
 
 // Register
