@@ -109,3 +109,19 @@ export async function register({email, password, fullName, role, companyName}){
 
     
 }
+
+export async function login({email, password}){
+    const result = await pool.query('SELECT id, email, full_name, role, password_hash FROM users WHERE email = $1', [email])
+    const user = result.rows[0]
+
+    if(!user || !(await verifyPassword(password, user.password_hash))){
+        throw new ApiError(401, 'Invalid email or password')
+    }
+
+    const accessToken = generateAccessToken(user.id, user.role)
+    const refreshToken = generateRefreshToken()
+    await storeRefreshToken(user.id, refreshToken)
+    const { password_hash, ...safeUser } = user
+
+    return { user: safeUser, accessToken, refreshToken }
+}
