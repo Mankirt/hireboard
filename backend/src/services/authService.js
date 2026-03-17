@@ -46,7 +46,7 @@ export async function storeRefreshToken(userId, refreshToken){
 export async function verifyRefreshToken(refreshToken){
     const tokenHash = hashToken(refreshToken)
     const result = await pool.query(
-        `SELECT user_id FROM refresh_tokens WHERE token_hash = $1`,
+        `SELECT id, user_id, expires_at FROM refresh_tokens WHERE token_hash = $1`,
         [tokenHash]
     )
     const record = result.rows[0]
@@ -54,7 +54,7 @@ export async function verifyRefreshToken(refreshToken){
         throw new ApiError(401, 'Invalid refresh token')
     }
     if (new Date(record.expires_at) < new Date()){
-        await pool.query(`DELETE FROM refresh_tokens WHERE token_hash = $1`, [tokenHash])
+        await pool.query(`DELETE FROM refresh_tokens WHERE token_hash = $1`, [record.id])
         throw new ApiError(401, 'Refresh token expired')
     }
     return record
