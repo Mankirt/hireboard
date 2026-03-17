@@ -125,3 +125,22 @@ export async function login({email, password}){
 
     return { user: safeUser, accessToken, refreshToken }
 }
+
+export async function rotateRefreshToken(incomingToken){
+    
+    const tokenRecord = await verifyRefreshToken(incomingToken)
+
+    await pool.query(`DELETE FROM refresh_tokens WHERE id = $1`, [tokenRecord.id])
+    
+    const userResult = await pool.query(`SELECT id, email, full_name, role FROM users WHERE id = $1`, [tokenRecord.user_id])
+
+    const user = userResult.rows[0]
+    if (!user){
+        throw new ApiError(401, 'User not found')
+    }
+
+    const newAccessToken = generateAccessToken(user.id, user.role)
+    const newRefreshToken = generateRefreshToken()
+    await storeRefreshToken(user.id, newRefreshToken)
+    return { user, accessToken: newAccessToken, refreshToken: newRefreshToken }
+}
