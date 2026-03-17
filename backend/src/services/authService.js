@@ -43,3 +43,43 @@ export async function storeRefreshToken(userId, refreshToken){
     )
 }
 
+export async function register({email, password, fullName, role, companyName}){
+    const existing = await pool.query('SELECT id from users WHERE email = $1', [email])
+    if (existing.rows.length > 0){
+        throw new ApiError(400, 'Email already registered')
+    }
+
+    const passwordHash = await hashPassword(password)
+
+    const result = await pool.query(
+        `INSERT INTO users (email, password_hash, full_name, role) 
+         VALUES ($1, $2, $3, $4) RETURNING id`, 
+         [email, passwordHash, fullName, role]
+    )
+
+    const user = result.rows[0]
+
+    if (role === 'employer'){
+        if (!companyName){
+            throw new ApiError(400, 'Company name is required for employers')
+        }
+        await pool.query(
+            `INSERT INTO employer_profiles (user_id, company_name) VALUES ($1, $2)`,
+            [user.id, companyName]
+        )
+        //Create a free subscription record
+        await pool.query(
+            `INSERT INTO subscriptions (user_id, plan, status) VALUES ($1, 'free', 'active')`,
+            [user.id]
+        )
+    }
+
+    const accessToken = generateAccessToken(user.id, role)
+    const refreshToken = generateRefreshToken()
+
+    await storeRefreshToken(user.id, refreshToken)
+
+    return { user, accessToken, refreshToken }
+
+    
+}
