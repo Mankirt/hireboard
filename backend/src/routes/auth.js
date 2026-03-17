@@ -49,4 +49,18 @@ router.post('/login', asyncHandler(async (req, res) => {
     )
 }))
 
+//Logout
+router.post('/logout', asyncHandler(async (req, res) => {
+    const refreshToken = req.cookies>.refreshToken
+    if (refreshToken){
+        await deleteRefreshToken(refreshToken)
+    }
+    res.clearCookie('refreshToken', COOKIE_OPTIONS)
+    return res.json(
+        new ApiResponse(200, null, 'Logout successful')
+    )
+}))
+
+export default router
+
 
