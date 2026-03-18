@@ -167,3 +167,16 @@ export async function updateApplicationStatus({
 
     return updatedApplication
 }
+
+//Used by the frontend to show "Already Applied" badge on job listings for logged-in seekers.
+export async function hasApplied(seekerId, jobId) {
+    if (!seekerId) return false
+
+    const result = await pool.query(
+        `SELECT id FROM applications
+        WHERE seeker_id = $1 AND job_id = $2`,
+        [seekerId, jobId]
+    )
+
+    return result.rows.length > 0
+}
