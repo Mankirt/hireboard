@@ -68,3 +68,41 @@ export async function getSeekerApplications(seekerId) {
 
     return result.rows
 }
+
+export async function getJobApplications(jobId, employerId) {
+
+    const jobResult = await pool.query(
+        'SELECT id, employer_id FROM jobs WHERE id = $1',
+        [jobId]
+    )
+
+    const job = jobResult.rows[0]
+
+    if (!job) {
+        throw new ApiError(404, 'Job not found')
+    }
+
+    if (job.employer_id !== employerId) {
+        throw new ApiError(403, 'You can only view applications for your own jobs')
+    }
+
+    const result = await pool.query(
+        `SELECT
+        a.id,
+        a.status,
+        a.cover_letter,
+        a.created_at,
+        a.updated_at,
+        u.id          AS seeker_id,
+        u.full_name   AS seeker_name,
+        u.email       AS seeker_email,
+        u.avatar_url  AS seeker_avatar
+        FROM applications a
+        JOIN users u ON u.id = a.seeker_id
+        WHERE a.job_id = $1
+        ORDER BY a.created_at DESC`,
+        [jobId]
+    )
+
+    return result.rows
+}
