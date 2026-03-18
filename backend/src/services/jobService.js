@@ -195,3 +195,28 @@ export async function updateJob(jobId, employerId, updates) {
 
     return result.rows[0]
 }
+
+export async function deleteJob(jobId, employerId) {
+    const existing = await pool.query(
+        'SELECT id, employer_id FROM jobs WHERE id = $1',
+        [jobId]
+    )
+
+    const job = existing.rows[0]
+
+    if (!job) {
+        throw new ApiError(404, 'Job not found')
+    }
+
+    if (job.employer_id !== employerId) {
+        throw new ApiError(403, 'You can only delete your own jobs')
+    }
+
+    await pool.query(
+        `UPDATE jobs SET status = 'closed', updated_at = NOW()
+        WHERE id = $1`,
+        [jobId]
+    )
+
+    return { message: 'Job closed successfully' }
+}
