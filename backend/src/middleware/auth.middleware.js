@@ -18,3 +18,15 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
     req.user = { userId: decoded.userId, role: decoded.role }
     next()
 })
+
+export const requireRole = (...roles) => {
+    return asyncHandler(async (req, res, next) => {
+        if (!req.user){
+            throw new ApiError(401, 'Authentication required')
+        }
+        if (!roles.includes(req.user.role)){
+            throw new ApiError(403, 'Forbidden - insufficient permissions')
+        }
+        next()
+    })
+}
