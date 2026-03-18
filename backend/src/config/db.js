@@ -75,6 +75,7 @@ export async function initDB() {
                 id  SERIAL PRIMARY KEY,
                 employer_id INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
                 title  VARCHAR(255) NOT NULL,
+                slug VARCHAR(255) UNIQUE NOT NULL,
                 description TEXT NOT NULL,
                 location VARCHAR(255),
                 job_type VARCHAR(50) CHECK (job_type IN ('full-time', 'part-time', 'contract', 'remote')),
