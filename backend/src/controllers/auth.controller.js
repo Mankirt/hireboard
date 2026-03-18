@@ -2,7 +2,7 @@ import { asyncHandler } from '../utils/asyncHandler.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { ApiError } from '../utils/ApiError.js'
 import { register, login, deleteRefreshToken, rotateRefreshToken } from '../services/authService.js'
-import { pool } from '../config/db.js'
+import pool from '../config/db.js'
 
 export const COOKIE_OPTIONS = {
     httpOnly: true,
