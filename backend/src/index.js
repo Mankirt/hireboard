@@ -9,6 +9,7 @@ import { initDB } from './config/db.js'
 import cookieParser from 'cookie-parser'
 import authRoutes from './routes/auth.js'
 import jobRoutes from './routes/jobs.js'
+import applicationRoutes from './routes/applications.js'
 
 dotenv.config()
 
@@ -46,6 +47,7 @@ app.get('/health', (req, res) => {
 
 app.use('/api/auth', authRoutes)
 app.use('/api/jobs', jobRoutes)
+app.use('/api/applications', applicationRoutes)
 
 app.use((req,res) => {
     res.status(404).json(
