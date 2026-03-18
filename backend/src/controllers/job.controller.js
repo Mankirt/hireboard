@@ -39,3 +39,14 @@ export const createJobController = asyncHandler(async (req, res) => {
         new ApiResponse(201, job, 'Job created successfully')
     )
 })
+
+export const getAllJobsController = asyncHandler(async (req, res) => {
+    
+    const { page = 1, limit = 10, location, jobType } = req.query
+
+    const result = await getAllJobs({ page, limit, location, jobType })
+
+    return res.status(200).json(
+        new ApiResponse(200, result, 'Jobs fetched successfully')
+    )
+})
