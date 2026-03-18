@@ -53,3 +53,56 @@ export async function createJob({
     )
     return result.rows[0]
 }
+
+export async function getAllJobs({
+    page = 1,
+    limit = 10,
+    location,
+    jobType,
+    status = 'active',
+} = {}) {
+    const conditions = ['j.status = $1']
+    const params = [status]
+    let paramCount = 1
+    if (location) {
+        paramCount++
+        conditions.push(`j.location ILIKE $${paramCount}`)
+        params.push(`%${location}%`)
+    }
+    if (jobType) {
+        paramCount++
+        conditions.push(`j.job_type = $${paramCount}`)
+        params.push(jobType)
+    }
+    const whereClause = conditions.join(' AND ')
+    const offset = (page - 1) * limit
+
+    const jobsResult = await pool.query(
+        `SELECT
+        j.id, j.title, j.slug, j.location, j.job_type,
+        j.salary_min, j.salary_max, j.status, j.created_at,
+        ep.company_name, ep.logo_url
+        FROM jobs j
+        JOIN employer_profiles ep ON ep.user_id = j.employer_id
+        WHERE ${whereClause}
+        ORDER BY j.created_at DESC
+        LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}`,
+        [...params, limit, offset]
+    )
+
+    const countResult = await pool.query(
+        `SELECT COUNT(*)
+        FROM jobs j
+        WHERE ${whereClause}`,
+        params
+    )
+
+    const total = parseInt(countResult.rows[0].count)
+    return {
+        jobs: jobsResult.rows,
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(total / limit),
+    }
+}
