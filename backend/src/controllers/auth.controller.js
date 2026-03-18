@@ -2,6 +2,7 @@ import { asyncHandler } from '../utils/asyncHandler.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { ApiError } from '../utils/ApiError.js'
 import { register, login, deleteRefreshToken, rotateRefreshToken } from '../services/authService.js'
+import { pool } from '../config/db.js'
 
 export const COOKIE_OPTIONS = {
     httpOnly: true,
@@ -63,5 +64,19 @@ export const refreshController = asyncHandler(async (req, res) => {
     res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS)
     return res.status(200).json(
         new ApiResponse(200, { user, accessToken }, 'Token refreshed successfully')
+    )
+})
+
+export const getMeController = asyncHandler(async (req, res) => {
+    const result = await pool.query('SELECT id, email, full_name, role, avatar_url, created_at FROM users WHERE id = $1', [req.user.userId])
+
+    const user = result.rows[0]
+
+    if (!user){
+        throw new ApiError(404, 'User not found')
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, { user }, 'User profile retrieved successfully')
     )
 })
