@@ -71,3 +71,11 @@ export const getJobController = asyncHandler(async (req, res) => {
         new ApiResponse(200, job, 'Job fetched successfully')
     )
 })
+
+export const getMyJobsController = asyncHandler(async (req, res) => {
+    const jobs = await getEmployerJobs(req.user.userId)
+
+    return res.status(200).json(
+        new ApiResponse(200, jobs, 'Your jobs fetched successfully')
+    )
+})
