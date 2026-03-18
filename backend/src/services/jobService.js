@@ -151,3 +151,47 @@ export async function getEmployerJobs(employerId) {
 
     return result.rows
 }
+
+export async function updateJob(jobId, employerId, updates) {
+    // Ownership check
+    const existing = await pool.query(
+        'SELECT id, employer_id FROM jobs WHERE id = $1',
+        [jobId]
+    )
+
+    const job = existing.rows[0]
+
+    if (!job) {
+        throw new ApiError(404, 'Job not found')
+    }
+
+    if (job.employer_id !== employerId) {
+        throw new ApiError(403, 'You can only edit your own jobs')
+    }
+
+    const result = await pool.query(
+        `UPDATE jobs SET
+        title = COALESCE($1, title),
+        description = COALESCE($2, description),
+        location = COALESCE($3, location),
+        job_type = COALESCE($4, job_type),
+        salary_min = COALESCE($5, salary_min),
+        salary_max = COALESCE($6, salary_max),
+        status = COALESCE($7, status),
+        updated_at = NOW()
+        WHERE id = $8
+        RETURNING *`,
+        [
+            updates.title,
+            updates.description,
+            updates.location,
+            updates.jobType,
+            updates.salaryMin,
+            updates.salaryMax,
+            updates.status,
+            jobId,
+        ]
+    )
+
+    return result.rows[0]
+}
