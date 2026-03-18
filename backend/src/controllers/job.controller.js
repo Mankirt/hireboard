@@ -50,3 +50,24 @@ export const getAllJobsController = asyncHandler(async (req, res) => {
         new ApiResponse(200, result, 'Jobs fetched successfully')
     )
 })
+
+export const getJobController = asyncHandler(async (req, res) => {
+    const { id } = req.params
+
+    // Support both numeric id and slug
+    // /jobs/42      → lookup by id
+    // /jobs/senior-react-engineer-a3f9 → lookup by slug
+    const isNumeric = /^\d+$/.test(id)
+
+    const job = isNumeric
+        ? await getJobById(parseInt(id))
+        : await getJobBySlug(id)
+
+    if (!job) {
+        throw new ApiError(404, 'Job not found')
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, job, 'Job fetched successfully')
+    )
+})
