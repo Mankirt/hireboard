@@ -106,3 +106,17 @@ export async function getAllJobs({
         totalPages: Math.ceil(total / limit),
     }
 }
+
+export async function getJobById(id) {
+    const result = await pool.query(
+        `SELECT
+        j.*,
+        ep.company_name, ep.logo_url, ep.website, ep.description AS company_description
+        FROM jobs j
+        JOIN employer_profiles ep ON ep.user_id = j.employer_id
+        WHERE j.id = $1`,
+        [id]
+    )
+
+     return result.rows[0] || null
+}
