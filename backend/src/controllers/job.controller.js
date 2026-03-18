@@ -89,3 +89,13 @@ export const updateJobController = asyncHandler(async (req, res) => {
         new ApiResponse(200, job, 'Job updated successfully')
     )
 })
+
+export const deleteJobController = asyncHandler(async (req, res) => {
+    const jobId = parseInt(req.params.id)
+
+    const result = await deleteJob(jobId, req.user.userId)
+
+    return res.status(200).json(
+        new ApiResponse(200, result, 'Job deleted successfully')
+    )
+})
