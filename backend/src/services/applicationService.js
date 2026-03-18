@@ -42,3 +42,29 @@ export async function applyToJob({ seekerId, jobId, coverLetter }) {
         throw err
     }
 }
+
+export async function getSeekerApplications(seekerId) {
+    const result = await pool.query(
+        `SELECT
+        a.id,
+        a.status,
+        a.cover_letter,
+        a.created_at,
+        a.updated_at,
+        j.id          AS job_id,
+        j.title       AS job_title,
+        j.slug        AS job_slug,
+        j.location    AS job_location,
+        j.job_type,
+        ep.company_name,
+        ep.logo_url
+        FROM applications a
+        JOIN jobs j             ON j.id = a.job_id
+        JOIN employer_profiles ep ON ep.user_id = j.employer_id
+        WHERE a.seeker_id = $1
+        ORDER BY a.created_at DESC`,
+        [seekerId]
+    )
+
+    return result.rows
+}
