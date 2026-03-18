@@ -134,3 +134,20 @@ export async function getJobBySlug(slug) {
 
     return result.rows[0] || null
 }
+
+export async function getEmployerJobs(employerId) {
+    const result = await pool.query(
+        `SELECT
+        j.id, j.title, j.slug, j.location, j.job_type,
+        j.salary_min, j.salary_max, j.status, j.created_at,
+        COUNT(a.id) AS application_count
+        FROM jobs j
+        LEFT JOIN applications a ON a.job_id = j.id
+        WHERE j.employer_id = $1
+        GROUP BY j.id
+        ORDER BY j.created_at DESC`,
+        [employerId]
+    )
+
+    return result.rows
+}
