@@ -180,3 +180,44 @@ export async function hasApplied(seekerId, jobId) {
 
     return result.rows.length > 0
 }
+
+export async function getApplicationById(applicationId, userId) {
+    const result = await pool.query(
+        `SELECT
+        a.id,
+        a.status,
+        a.cover_letter,
+        a.created_at,
+        a.updated_at,
+        a.seeker_id,
+        j.id          AS job_id,
+        j.title       AS job_title,
+        j.slug        AS job_slug,
+        j.location    AS job_location,
+        j.job_type,
+        j.employer_id,
+        ep.company_name,
+        ep.logo_url
+        FROM applications a
+        JOIN jobs j               ON j.id = a.job_id
+        JOIN employer_profiles ep ON ep.user_id = j.employer_id
+        WHERE a.id = $1`,
+        [applicationId]
+    )
+
+    const application = result.rows[0]
+
+    if (!application) {
+        throw new ApiError(404, 'Application not found')
+    }
+
+    // Seeker who applied OR employer who owns the job
+    const isSeeker   = application.seeker_id   === userId
+    const isEmployer = application.employer_id === userId
+
+    if (!isSeeker && !isEmployer) {
+        throw new ApiError(403, 'You do not have access to this application')
+    }
+
+    return application
+}

@@ -7,6 +7,7 @@ import {
   getJobApplications,
   updateApplicationStatus,
   hasApplied,
+  getApplicationById
 } from '../services/applicationService.js'
 
 export const applyController = asyncHandler(async (req, res) => {
@@ -80,5 +81,19 @@ export const hasAppliedController = asyncHandler(async (req, res) => {
 
     return res.status(200).json(
         new ApiResponse(200, { applied }, 'Check complete')
+    )
+})
+
+export const getApplicationController = asyncHandler(async (req, res) => {
+    const applicationId = parseInt(req.params.id)
+
+    if (isNaN(applicationId)) {
+        throw new ApiError(400, 'Invalid application ID')
+    }
+
+    const application = await getApplicationById(applicationId, req.user.userId)
+
+    return res.status(200).json(
+        new ApiResponse(200, application, 'Application fetched successfully')
     )
 })

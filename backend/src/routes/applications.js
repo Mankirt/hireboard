@@ -6,6 +6,7 @@ import {
   getJobApplicationsController,
   updateStatusController,
   hasAppliedController,
+  getApplicationController
 } from '../controllers/application.controller.js'
 
 const router = express.Router()
@@ -25,5 +26,8 @@ router.get('/check/:jobId', optionalAuth, hasAppliedController)
 router.get( '/job/:jobId', verifyJWT, requireRole('employer'), getJobApplicationsController )
 // Update application status
 router.put( '/:id/status', verifyJWT, requireRole('employer'), updateStatusController )
+
+//LOGGED IN USERS ROUTES
+router.get('/:id', verifyJWT, getApplicationController)
 
 export default router
