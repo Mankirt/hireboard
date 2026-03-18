@@ -120,3 +120,17 @@ export async function getJobById(id) {
 
      return result.rows[0] || null
 }
+
+export async function getJobBySlug(slug) {
+    const result = await pool.query(
+        `SELECT
+        j.*,
+        ep.company_name, ep.logo_url, ep.website, ep.description AS company_description
+        FROM jobs j
+        JOIN employer_profiles ep ON ep.user_id = j.employer_id
+        WHERE j.slug = $1`,
+        [slug]
+    )
+
+    return result.rows[0] || null
+}
