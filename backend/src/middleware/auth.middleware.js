@@ -30,3 +30,19 @@ export const requireRole = (...roles) => {
         next()
     })
 }
+
+export const optionalAuth = asyncHandler(async (req, res, next) => {
+    const authHeader = req.headers.authorization
+    if (!authHeader || !authHeader.startsWith('Bearer ')){
+        req.user = null
+        return next()
+    }
+    const token = authHeader.split(' ')[1]
+    try {
+        const decoded = verifyAccessToken(token)
+        req.user = { userId: decoded.userId, role: decoded.role }      
+    } catch (error) {
+        req.user = null
+    }
+    next()
+})
