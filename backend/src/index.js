@@ -10,6 +10,7 @@ import cookieParser from 'cookie-parser'
 import authRoutes from './routes/auth.js'
 import jobRoutes from './routes/jobs.js'
 import applicationRoutes from './routes/applications.js'
+import { initElasticsearch } from './config/elasticsearch.js'
 
 dotenv.config()
 
@@ -71,6 +72,7 @@ app.use((err, req, res, next) => {
 async function start() {
   try {
     await initDB()
+    await initElasticsearch()
     app.listen(PORT, () => {
       console.log(`HireBoard API running on http://localhost:${PORT}`)
     })
