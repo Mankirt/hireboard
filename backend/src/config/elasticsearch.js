@@ -49,7 +49,7 @@ const jobsMapping = {
             salary_min: { type: 'integer' },
             salary_max: { type: 'integer' },
             employer_id: { type: 'integer'},
-            created_at: {type: 'data'}
+            created_at: {type: 'date'}
 
         }
     },
