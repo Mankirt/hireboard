@@ -11,6 +11,8 @@ import authRoutes from './routes/auth.js'
 import jobRoutes from './routes/jobs.js'
 import applicationRoutes from './routes/applications.js'
 import { initElasticsearch } from './config/elasticsearch.js'
+import { connectProducer, startIndexerConsumer } from './config/kafka.js'
+import esClient from './config/elasticsearch.js'
 
 dotenv.config()
 

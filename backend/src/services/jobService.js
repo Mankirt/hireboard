@@ -1,5 +1,6 @@
 import pool from '../config/db.js'
 import { ApiError } from '../utils/ApiError.js'
+import { publishJobEvent } from '../config/kafka.js'
 
 function generateSlug(title){
     const base = title.toLower()
@@ -51,7 +52,19 @@ export async function createJob({
         RETURNING *`,
         [employerId, title, slug, description, location, jobType, salaryMin, salaryMax]
     )
-    return result.rows[0]
+    const job =  result.rows[0]
+    const companyResult = await pool.query(
+        'SELECT company_name FROM employer_profiles WHERE user_id = $1',
+        [employerId]
+    )
+
+    const jobWithCompany = {
+        ...job,
+        company_name: companyResult.rows[0]?.company_name,
+    }
+    publishJobEvent('job.created', jobWithCompany)
+
+    return job
 }
 
 export async function getAllJobs({
@@ -212,11 +225,14 @@ export async function deleteJob(jobId, employerId) {
         throw new ApiError(403, 'You can only delete your own jobs')
     }
 
-    await pool.query(
+    const result = await pool.query(
         `UPDATE jobs SET status = 'closed', updated_at = NOW()
-        WHERE id = $1`,
+        WHERE id = $1 RETURNING *`,
         [jobId]
     )
+
+    job = result.rows[0]
+    publishJobEvent('job.deleted', job)
 
     return { message: 'Job closed successfully' }
 }
