@@ -75,6 +75,8 @@ async function start() {
   try {
     await initDB()
     await initElasticsearch()
+    await connectProducer()
+    await startIndexerConsumer(esClient) 
     app.listen(PORT, () => {
       console.log(`HireBoard API running on http://localhost:${PORT}`)
     })
