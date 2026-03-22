@@ -13,6 +13,7 @@ import applicationRoutes from './routes/applications.js'
 import { initElasticsearch } from './config/elasticsearch.js'
 import { connectProducer, startIndexerConsumer } from './config/kafka.js'
 import esClient from './config/elasticsearch.js'
+import searchRoutes from './routes/search.js'
 
 dotenv.config()
 
@@ -51,6 +52,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/jobs', jobRoutes)
 app.use('/api/applications', applicationRoutes)
+app.use('/api/search', searchRoutes)
 
 app.use((req,res) => {
     res.status(404).json(
