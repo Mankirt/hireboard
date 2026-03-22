@@ -4,10 +4,12 @@ import {
   createCheckoutController,
   getSubscriptionController,
   cancelSubscriptionController,
+  webhookController
 } from '../controllers/payment.controller.js'
 
 const router = express.Router()
 
+router.post('/webhook', webhookController)
 
 router.post(
     '/create-checkout-session',

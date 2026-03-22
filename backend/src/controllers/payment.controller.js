@@ -5,6 +5,7 @@ import {
   createCheckoutSession,
   getSubscriptionStatus,
   cancelSubscription,
+  handleWebhookEvent
 } from '../services/paymentService.js'
 import pool from '../config/db.js'
 
@@ -44,4 +45,16 @@ export const cancelSubscriptionController = asyncHandler(async (req, res) => {
     return res.status(200).json(
         new ApiResponse(200, result, 'Subscription cancellation scheduled')
     )
+})
+
+export const webhookController = asyncHandler(async (req, res) => {
+    const signature = req.headers['stripe-signature']
+
+    if (!signature) {
+        throw new ApiError(400, 'Missing stripe-signature header')
+    }
+
+    const result = await handleWebhookEvent(req.body, signature)
+
+    return res.status(200).json(result)
 })

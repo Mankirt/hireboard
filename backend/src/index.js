@@ -29,6 +29,9 @@ for (const key of required){
     }
 }
 
+// webhook for stripe
+app.use( '/api/payments/webhook', express.raw({ type: 'application/json' }))
+
 // Middlewares
 app.use(helmet())
 app.use(cors({
