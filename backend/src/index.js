@@ -1,10 +1,12 @@
 import dotenv from 'dotenv'
 import express from 'express'
+import { createServer } from 'http'
 import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import { ApiResponse } from './utils/ApiResponse.js'
 import { ApiError } from './utils/ApiError.js'
+import { initSocketIO } from './config/socket.js'
 import { initDB } from './config/db.js'
 import cookieParser from 'cookie-parser'
 import authRoutes from './routes/auth.js'
@@ -19,6 +21,7 @@ import paymentRoutes from './routes/payments.js'
 dotenv.config()
 
 const app = express()
+const httpServer = createServer(app)
 const PORT  = process.env.PORT || 3001
 
 // Start-up checks
@@ -84,8 +87,10 @@ async function start() {
     await initElasticsearch()
     await connectProducer()
     await startIndexerConsumer(esClient) 
-    app.listen(PORT, () => {
-      console.log(`HireBoard API running on http://localhost:${PORT}`)
+    initSocketIO(httpServer)
+    httpServer.listen(PORT, () => {
+        console.log(`HireBoard API running on http://localhost:${PORT}`)
+        console.log(`WebSocket server ready on same port\n`)
     })
 
   } catch (err) {
