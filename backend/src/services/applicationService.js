@@ -115,59 +115,6 @@ export async function getJobApplications(jobId, employerId) {
     return result.rows
 }
 
-export async function updateApplicationStatus({
-    applicationId,
-    employerId,
-    newStatus,
-    }) {
-    
-    const appResult = await pool.query(
-        `SELECT
-        a.id,
-        a.status AS current_status,
-        a.seeker_id,
-        j.employer_id
-        FROM applications a
-        JOIN jobs j ON j.id = a.job_id
-        WHERE a.id = $1`,
-        [applicationId]
-    )
-
-    const application = appResult.rows[0]
-
-    if (!application) {
-        throw new ApiError(404, 'Application not found')
-    }
-
-    if (application.employer_id !== employerId) {
-        throw new ApiError(403, 'You can only update applications for your own jobs')
-    }
-
-    // Validate status transition
-    const currentStatus = application.current_status
-    const allowedNext = VALID_TRANSITIONS[currentStatus]
-
-    if (!allowedNext.includes(newStatus)) {
-        throw new ApiError(
-            400,
-            `Cannot transition from '${currentStatus}' to '${newStatus}'. ` +
-            `Allowed: ${allowedNext.length ? allowedNext.join(', ') : 'none (terminal state)'}`
-        )
-    }
-
-    // Update status
-    const result = await pool.query(
-        `UPDATE applications
-        SET status = $1, updated_at = NOW()
-        WHERE id = $2
-        RETURNING *`,
-        [newStatus, applicationId]
-    )
-
-    const updatedApplication = result.rows[0]
-
-    return updatedApplication
-}
 
 //Used by the frontend to show "Already Applied" badge on job listings for logged-in seekers.
 export async function hasApplied(seekerId, jobId) {
