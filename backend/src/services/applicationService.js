@@ -1,5 +1,6 @@
 import pool from '../config/db.js'
 import { ApiError } from '../utils/ApiError.js'
+import { notifyUser } from '../config/socket.js'
 
 const VALID_TRANSITIONS = {
     pending:    ['reviewing', 'rejected'],
@@ -220,4 +221,67 @@ export async function getApplicationById(applicationId, userId) {
     }
 
     return application
+}
+
+export async function updateApplicationStatus({
+    applicationId,
+    employerId,
+    newStatus
+}) {
+    const appResult = await pool.query(
+        `SELECT
+            a.id,
+            a.status as cuurent_status,
+            a.seeker_id,
+            j.employer_id,
+            j.title as job_title,
+
+            ep.company_name
+        FROM applications a
+        JOIN jobs j ON j.id = a.job_id
+        JOIN employer_profiles ep ON ep.user_id = j.employer_id
+        WHERE a-id = $1
+        `,
+        [applicationId]
+    )
+    const application = appResult.rows[0]
+
+    if (!application) {
+        throw new ApiError(404, 'Application not found')
+    }
+
+    if (application.employer_id !== employerId) {
+        throw new ApiError(403, 'You can only update applications for your own jobs')
+    }
+
+    const currentStatus = application.current_status
+    const allowedNext = VALID_TRANSITIONS[currentStatus]
+
+    if (!allowedNext.includes(newStatus)) {
+        throw new ApiError(
+            400,
+            `Cannot transition from '${currentStatus}' to '${newStatus}'. ` +
+            `Allowed: ${allowedNext.length ? allowedNext.join(', ') : 'none (terminal state)'}`
+        )
+    }
+
+    const result = await pool.query(
+        `UPDATE applications
+        SET status = $1, updated_at = NOW()
+        WHERE id = $2
+        RETURNING *`,
+        [newStatus, applicationId]
+    )
+
+    const updatedApplication = result.rows[0]
+
+    notifyUser(application.seeker_id, 'application:status_updated', {
+        applicationId,
+        jobTitle: application.job_title,
+        companyName: application.company_name,
+        newStatus,
+        previousStatus: currentStatus,
+    })
+
+    return updatedApplication
 }
