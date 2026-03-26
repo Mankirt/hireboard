@@ -1,3 +1,9 @@
+import RegisterForm from '@/components/auth/RegisterForm'
+
+export const metadata = {
+    title: 'Create Account — HireBoard',
+}
+
 export default function RegisterPage() {
-     return <div className="p-6 text-white">Register page </div>
+    return <RegisterForm />
 }

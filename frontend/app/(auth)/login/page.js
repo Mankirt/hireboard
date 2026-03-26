@@ -1,3 +1,9 @@
+import LoginForm from '@/components/auth/LoginForm'
+
+export const metadata = {
+    title: 'Sign In — HireBoard',
+}
+
 export default function LoginPage() {
-    return <div className="p-6 text-white">Login page</div>
+    return <LoginForm />
 }
