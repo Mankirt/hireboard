@@ -3,7 +3,7 @@ import { ApiError } from '../utils/ApiError.js'
 import { publishJobEvent } from '../config/kafka.js'
 
 function generateSlug(title){
-    const base = title.toLower()
+    const base = title.toLowerCase()
                       .trim()
                       .replace(/[^a-z0-9\s-]/g, '')  
                       .replace(/\s+/g, '-')         
