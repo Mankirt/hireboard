@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { api } from '@/lib/api'
-import { Plus, Edit, Trash2, Users, BarChart3 } from 'lucide-react'
+import { Plus, Edit, Trash2, Users, BarChart3, Briefcase } from 'lucide-react'
 
 const STATUS_COLORS = {
     active: 'bg-emerald-50 text-emerald-700',
