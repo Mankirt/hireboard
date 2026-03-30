@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from './Providers'
 import { Briefcase, LogOut, User, Plus, Search } from 'lucide-react'
+import NotificationBell from './NotificatonBell'
 
 export default function Header() {
     const { user, logout } = useAuth()
@@ -70,7 +71,7 @@ export default function Header() {
                     Post Job
                     </Link>
                 )}
-
+                {user.role === 'seeker' && <NotificationBell />}
                 <Link
                     href="/dashboard"
                     className="flex items-center gap-1.5 text-sm text-slate-600
