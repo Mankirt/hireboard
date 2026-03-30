@@ -75,7 +75,7 @@ export default function HomePage() {
                 <ArrowRight size={18} />
               </Link>
               <Link
-                href="/register"
+                href="/dashboard/jobs/new"
                 className="px-8 py-3 border border-slate-300 hover:border-slate-400
                           text-slate-700 font-semibold rounded-xl transition-colors
                           bg-white hover:bg-slate-50"
