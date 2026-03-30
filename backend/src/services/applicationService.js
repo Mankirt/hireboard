@@ -178,7 +178,7 @@ export async function updateApplicationStatus({
     const appResult = await pool.query(
         `SELECT
             a.id,
-            a.status as cuurent_status,
+            a.status as current_status,
             a.seeker_id,
             j.employer_id,
             j.title as job_title,
@@ -187,7 +187,7 @@ export async function updateApplicationStatus({
         FROM applications a
         JOIN jobs j ON j.id = a.job_id
         JOIN employer_profiles ep ON ep.user_id = j.employer_id
-        WHERE a-id = $1
+        WHERE a.id = $1
         `,
         [applicationId]
     )
