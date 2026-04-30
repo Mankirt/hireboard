@@ -96,7 +96,7 @@ export async function register({email, password, fullName, role, companyName}){
 
     const result = await pool.query(
         `INSERT INTO users (email, password_hash, full_name, role) 
-         VALUES ($1, $2, $3, $4) RETURNING id`, 
+         VALUES ($1, $2, $3, $4) RETURNING id, email, full_name, role`, 
          [email, passwordHash, fullName, role]
     )
 
