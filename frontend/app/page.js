@@ -1,7 +1,11 @@
+'use client'
+
 import Link from 'next/link'
 import { Search, Zap, Shield, BarChart3, ArrowRight } from 'lucide-react'
+import { useAuth } from '@/components/Providers'
 
 export default function HomePage() {
+    const { user } = useAuth()
     const features = [
       {
         icon: Search,
@@ -74,6 +78,7 @@ export default function HomePage() {
                 Browse Jobs
                 <ArrowRight size={18} />
               </Link>
+              {(!user || user.role === 'employer') && (
               <Link
                 href="/dashboard/jobs/new"
                 className="px-8 py-3 border border-slate-300 hover:border-slate-400
@@ -82,6 +87,7 @@ export default function HomePage() {
               >
                 Post a Job
               </Link>
+              )}
             </div>
           </div>
         </div>
