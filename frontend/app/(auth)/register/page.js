@@ -1,15 +1,21 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/components/Providers'
 import { Briefcase, User, Building2 } from 'lucide-react'
 
 export default function RegisterPage() {
-    const { register } = useAuth()
+    const { register, user } = useAuth()
     const router = useRouter()
     const searchParams = useSearchParams()
+
+    useEffect(() => {
+        if (user) {
+            router.push('/')
+        }
+    }, [user, router])
 
     const [form, setForm] = useState({
         email: '',
