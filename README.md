@@ -29,6 +29,9 @@ Next.js (SSR) ──→ Node.js API ──→ PostgreSQL   (source of truth)
 ---
 
 ## Demo
+Both dashboards running simultaneously — employer on the left, seeker on the right.
+Watch as the seeker's application status updates in real time the moment the employer takes action.
+
 ![HireBoard Demo](assets/demo.gif)
 
 ---
