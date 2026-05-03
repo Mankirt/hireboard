@@ -30,7 +30,11 @@ Next.js (SSR) ──→ Node.js API ──→ PostgreSQL   (source of truth)
 
 ## Demo
 Both dashboards running simultaneously — employer on the left, seeker on the right.
-Watch as the seeker's application status updates in real time the moment the employer takes action.
+
+- 🏢 Employer logs in and posts a new job listing
+- 🔍 Seeker searches **"senior dev"** and finds the listing via Elasticsearch fuzzy matching
+- 📝 Seeker applies — employer moves status to **Reviewing**
+- ✅ Employer accepts — seeker receives a **real-time notification instantly**
 
 ![HireBoard Demo](assets/demo.gif)
 
