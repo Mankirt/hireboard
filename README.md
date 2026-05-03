@@ -29,9 +29,7 @@ Next.js (SSR) ──→ Node.js API ──→ PostgreSQL   (source of truth)
 ---
 
 ## Demo
-
-https://github.com/user-attachments/assets/e1af55dc-0f65-413d-9b7e-a69e4414480d
-https://github.com/user-attachments/assets/07e0e541-40bc-4809-9a22-f557dbb6056a
+![HireBoard Demo](assets/demo.gif)
 
 ---
 
