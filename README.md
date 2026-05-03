@@ -423,3 +423,7 @@ We use httpOnly cookies for refresh tokens and memory for access tokens. The com
 Stripe guarantees at-least-once delivery. The same `checkout.session.completed` event may arrive twice. Our handlers are idempotent — setting `plan = 'pro'` on an already-Pro account is a no-op. In a more sensitive flow (e.g. crediting a wallet), you would store processed event IDs and skip duplicates explicitly.
 
 ---
+
+## License
+
+MIT
